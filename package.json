@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/RoyShnitzel/challenge-sequelize#readme",
   "dependencies": {
-    "mysql": "^2.18.1"
+    "mysql2": "^2.2.5"
   },
   "devDependencies": {
     "jest": "^26.4.2"

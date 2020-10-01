@@ -1,29 +1,36 @@
-const { mySequelize } = require("./mySequelize");
-const mysql = require("mysql");
-const { describe } = require("yargs");
+const { MySequelize } = require("./mySequelize");
+const mysql = require("mysql2/promise");
+
+let mysqlCon;
 
 describe("first test", () => {
+
   beforeAll(async () => {
-    let mysqlCon = await mysql.createConnection({
+    mysqlCon = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "yalla007",
-      database: "music-app",
+      password: "O16s12@96",
+      database: "music_app_dev",
       multipleStatements: true,
     });
-
-    mysqlCon.connect((err) => {
-      if (err) throw err;
-      console.log("Connected!");
-    });
   });
 
-  it("findAll test", async () => {
-    const Song = new MySequelize(mysqlCon, "songs");
-    const myResults = await Song.findAll();
-    mysqlCon.query(`SELECT * FROM songs`, function (error, results, fields) {
-      if (error) throw error;
-      expect(myResults.length).toBe(results.length);
-    });
+  afterAll(async () => {
+    await connection.end();
   });
+
+  describe('test', () => {
+
+    test("findAll test", async () => {
+      const Song = new MySequelize(mysqlCon, "songs");
+      const myResults = await Song.findAll();
+
+      const results = await mysqlCon.query(`SELECT * FROM songs`)
+
+      expect(myResults.length).toBe(results.length)
+    });
+  })
+
 });
+
+
