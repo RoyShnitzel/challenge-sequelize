@@ -8,7 +8,7 @@ function SET(fields) {
         }
     }, '')
 
-    return SetStatment
+    return 'SET ' + SetStatment
 }
 
 module.exports = { SET };

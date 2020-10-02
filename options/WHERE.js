@@ -8,7 +8,7 @@ function WHERE(conditions) {
         }
     }, '')
 
-    return WhereStatment
+    return 'WHERE ' + WhereStatment
 }
 
 module.exports = { WHERE }

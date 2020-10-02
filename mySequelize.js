@@ -1,5 +1,4 @@
-const { SET } = require('./options/SET');
-const { WHERE } = require('./options/WHERE');
+const config = require('./options/optins')
 
 class MySequelize {
   constructor(connect, tableName) {
@@ -8,8 +7,28 @@ class MySequelize {
   }
 
 
-  async findAll() {
-    const results = await this.connection.query(`SELECT * FROM ${this.table}`)
+  async findAll(options) {
+    let optionsStatment = {}
+
+    if (options) {
+
+      const conditions = Object.keys(options)
+
+      optionsStatment = conditions.reduce((statment, condition) => {
+        statment[condition] = config[condition](options[condition])
+        return statment
+      }, {})
+
+    }
+
+    const results = await this.connection.query(`
+    SELECT ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
+    FROM ${this.table} 
+    ${optionsStatment.include ? optionsStatment.include : ''}
+    ${optionsStatment.where ? optionsStatment.where : ''} 
+    ${optionsStatment.order ? optionsStatment.order : ''} 
+    ${optionsStatment.limit ? optionsStatment.limit : ''}`)
+
     return results[0]
   }
 
@@ -36,8 +55,8 @@ class MySequelize {
     }
 
     // console.log(SET_Statment, WHERE_Statment)
-
-    const newObjects = await this.connection.query(`UPDATE ${this.table} SET ${SET_Statment} WHERE ${WHERE_Statment}`)
+    console.log(`UPDATE ${this.table} ${SET_Statment} ${WHERE_Statment}`)
+    const newObjects = await this.connection.query(`UPDATE ${this.table} ${SET_Statment} ${WHERE_Statment}`)
 
     // console.log(newObjects)
 
