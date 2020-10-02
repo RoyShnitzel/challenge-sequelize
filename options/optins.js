@@ -4,6 +4,7 @@ const { LIMIT } = require('./LIMIT')
 const { ATTRIBUTES } = require('./ATTRIBUTES')
 const { INCLUDE } = require('./JOIN')
 
+
 const config = {
     where: WHERE,
     order: ORDER,

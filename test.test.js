@@ -136,9 +136,9 @@ describe("first test", () => {
 
       const joinResults = await mysqlCon.query(`SELECT * FROM users LEFT JOIN playlists ON users.id = playlists.creator;`)
 
-      console.log(myResults, '1')
+      // console.log(myResults, '1')
 
-      console.log(joinResults[0], '2')
+      // console.log(joinResults[0], '2')
 
       // expect(myResults[0].user_id).toBe(results[0][0].user_id)
       // expect(myResults[1].email).toBe(undefined)
@@ -172,7 +172,7 @@ describe("first test", () => {
       await mysqlCon.query('DELETE FROM `users` WHERE id < 10000')
     })
 
-    test('update test', async () => {
+    test('only WHERE test', async () => {
 
       const allUsers = await mysqlCon.query(`SELECT * FROM users`)
 
@@ -192,6 +192,8 @@ describe("first test", () => {
       expect(user[0][0].email).toBe('yoav@gmail.com')
 
     })
+
+    test('')
   })
 
 

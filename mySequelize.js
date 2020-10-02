@@ -1,4 +1,5 @@
 const config = require('./options/optins')
+const { SET } = require('./options/SET')
 
 class MySequelize {
   constructor(connect, tableName) {
@@ -11,9 +12,7 @@ class MySequelize {
     let optionsStatment = {}
 
     if (options) {
-
       const conditions = Object.keys(options)
-
       optionsStatment = conditions.reduce((statment, condition) => {
         statment[condition] = config[condition](options[condition])
         return statment
@@ -34,31 +33,34 @@ class MySequelize {
 
 
 
-  async update(newDetsils, { where, ...restOptions }) {
+  async update(newDetsils, options) {
+
     if (!newDetsils) {
       throw 'Must sumbit colums and values to update'
     }
-    if (!where) {
+    if (!options.where) {
       throw `Must sumbit at list one 'where' conditon in the options object`
     }
 
+    const conditions = Object.keys(options)
+    const optionsStatment = conditions.reduce((statment, condition) => {
+      statment[condition] = config[condition](options[condition])
+      return statment
+    }, {})
+
     const SET_Statment = SET(newDetsils)
-    const WHERE_Statment = WHERE(where)
 
-    const restStatments = '';
+    console.log(`UPDATE ${this.table} 
+    ${SET_Statment}
+    ${optionsStatment.where}
+    ${optionsStatment.order ? optionsStatment.order : ''}
+    ${optionsStatment.limit ? optionsStatment.limit : ''}`)
 
-    if (restOptions.order) {
-      //oder option
-    }
-    if (restOptions.limit) {
-      //limit optins
-    }
-
-    // console.log(SET_Statment, WHERE_Statment)
-    console.log(`UPDATE ${this.table} ${SET_Statment} ${WHERE_Statment}`)
-    const newObjects = await this.connection.query(`UPDATE ${this.table} ${SET_Statment} ${WHERE_Statment}`)
-
-    // console.log(newObjects)
+    const newObjects = await this.connection.query(`UPDATE ${this.table} 
+    ${SET_Statment}
+    ${optionsStatment.where}
+    ${optionsStatment.order ? optionsStatment.order : ''}
+    ${optionsStatment.limit ? optionsStatment.limit : ''}`)
 
     return newObjects
   }
