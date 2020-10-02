@@ -9,8 +9,8 @@ describe("first test", () => {
     mysqlCon = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "O16s12@96",
-      database: "music_app_dev",
+      password: "G15162411t",
+      database:  "strudel_music",
       multipleStatements: true,
     });
   });
@@ -21,14 +21,30 @@ describe("first test", () => {
 
   describe('test', () => {
 
-    test("findAll test", async () => {
-      const Song = new MySequelize(mysqlCon, "songs");
-      const myResults = await Song.findAll();
+    // test("findAll test", async () => {
+    //   const Song = new MySequelize(mysqlCon, "songs");
+    //   const myResults = await Song.findAll();
+    //   const results = await mysqlCon.query(`SELECT * FROM songs`)
 
-      const results = await mysqlCon.query(`SELECT * FROM songs`)
+    //   expect(myResults.length).toBe(results.length)
+    // });
+    test("findByPk test", async () => {
+      const Users = new MySequelize(mysqlCon, "users");
+      const myResults = await Users.findByPk(1);
+      const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`)
 
-      expect(myResults.length).toBe(results.length)
+      expect(myResults.length).toBe(results[0].length)
+      expect(myResults[0].name).toBe(results[0][0].name)
     });
+    test("findOne test", async () => {
+      const Users = new MySequelize(mysqlCon, "users");
+      const myResults = await Users.findOne();
+      const results = await mysqlCon.query(`SELECT * FROM users LIMIT 1`)
+
+      expect(myResults.length).toBe(results[0].length);
+      expect(myResults[0].name).toBe(results[0][0].name)
+    });
+
   })
 
 });
