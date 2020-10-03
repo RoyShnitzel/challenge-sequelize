@@ -12,7 +12,7 @@ function getConfig(options) {
   if (options) {
     const conditions = Object.keys(options)
     optionsStatment = conditions.reduce((statment, condition) => {
-      if (condition === 'include') {
+      if (condition === 'include' || condition === 'force') {
         return statment
       }
       statment[condition] = config[condition](options[condition])
@@ -35,20 +35,17 @@ class MySequelize {
     this.connection = connect;
     this.table = tableName;
   }
-  async destroy(options) {
+  async destroy({ force, ...options }) {
+
     if (options) {
-      let id = options.where.id
-      const conditions = Object.keys(options);
 
-
-      if (conditions.includes("force") && options["force"] === true) {
-        const query = hardDelete(id);
+      if (force) {
+        const query = `DELETE FROM ${this.table} ${getConfig(options)}`
         const results = await this.connection.query(query);
         return results;
       } else {
-        const date = getDate();
-        console.log(`\"${date}\"`);
-        const query = softDelete(`\"${date}\"`, id);
+        const date = getDate()
+        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
         const results = await this.connection.query(query);
         return results;
       }
@@ -57,10 +54,8 @@ class MySequelize {
 
   async restore(options) {
 
-    let id = options ? options.where.id : null
-    const query = softDelete(null, id);
+    const query = `UPDATE ${this.table} SET deleted_at= null ${getConfig(options)}`;
     const results = await this.connection.query(query);
-    console.log(`User ID: ${id} Has Been Resotred`);
     return results;
   }
 
