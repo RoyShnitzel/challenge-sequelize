@@ -1,7 +1,7 @@
 const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
 const config = require('./config')
-const { Op } = require('./Op/index')
+const { Op } = require('./Op/OpsSymbols')
 
 
 let mysqlCon;
@@ -261,28 +261,38 @@ describe("first test", () => {
       expect(user[0][0].email).toBe("yoav@gmail.com");
     });
 
-    // test('WHERE and LIMIT test', async () => {
-    //   const allUsers = await mysqlCon.query(`SELECT * FROM users`)
+    test('WHERE and LIMIT test', async () => {
+      const allUsers = await mysqlCon.query(`SELECT * FROM users`)
 
-    //   expect(allUsers[0][0].name).toBe('Yoav')
-    //   expect(allUsers[0][0].email).toBe('yoav@gmail.com')
+      expect(allUsers[0][0].name).toBe('Yoav')
+      expect(allUsers[0][0].email).toBe('yoav@gmail.com')
 
-    //   const User = new MySequelize(mysqlCon, 'users');
-    //   await User.update({ name: 'Yoav', email: 'yoav@gmail.com' }, {
-    //     where: {
-    //       [Op.gt]: {
-    //         id: 2
-    //       } // id > 2
-    //     },
-    //     limit: 2
-    //   })
+      const User = new MySequelize(mysqlCon, 'users');
+      await User.update({ name: 'test', email: 'test@gmail.com' }, {
+        where: {
+          [Op.gt]: {
+            id: allUsers[0][1].id
+          }
+        },
+        limit: 2
+      })
 
-    //   const user = await mysqlCon.query(`SELECT * FROM users WHERE id = ${allUsers[0][0].id}`)
+      console.log()
 
-    //   expect(user[0][0].name).toBe('Yoav')
-    //   expect(user[0][0].email).toBe('yoav@gmail.com')
+      const users = await mysqlCon.query(`SELECT * FROM users `)
 
-    // })
+      console.log(users[0])
+
+      expect(users[0][0].name).toBe('Yoav')
+
+      expect(users[0][2].name).toBe('test')
+
+      expect(users[0][3].email).toBe('test@gmail.com')
+
+      expect(users[0][4].name).toBe('Yuval')
+
+
+    })
   });
 
   describe("Insert() test", () => {
@@ -419,7 +429,7 @@ describe("first test", () => {
         }
       })
 
-      console.log(hack)
+      // console.log(hack)
       // expect(hack.length).toBe(1)
 
 
