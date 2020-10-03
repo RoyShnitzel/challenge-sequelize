@@ -1,6 +1,8 @@
 const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
 const config = require('./config')
+const { Op } = require('./Op/index')
+
 
 let mysqlCon;
 
@@ -268,7 +270,9 @@ describe("first test", () => {
     //   const User = new MySequelize(mysqlCon, 'users');
     //   await User.update({ name: 'Yoav', email: 'yoav@gmail.com' }, {
     //     where: {
-    //       id: allUsers[0][0].id
+    //       [Op.gt]: {
+    //         id: 2
+    //       } // id > 2
     //     },
     //     limit: 2
     //   })
@@ -375,6 +379,50 @@ describe("first test", () => {
       expect(myResults.length).toBe(1);
       expect(myResults[0].id).toBe(results[0][2].id);
       expect(myResults[0].name).toBe('Ron');
+    })
+  })
+
+  describe('SQL Injection test', () => {
+
+    beforeAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users` WHERE id < 10000");
+
+      await mysqlCon.query(`INSERT INTO users (name, email, password, is_admin)
+          VALUES ('Dani', 'dani@gmail.com', '123456789', false),
+          ('Yoni', 'yoni@gmail.com', '987654321', false),
+          ('Ron', 'ron@gmail.com', '192837465', false),
+          ('Dana', 'dana@gmail.com', '918273645', True),
+          ('Yuval', 'yuval@gmail.com', '65748493021', false);`);
+
+      const results = await mysqlCon.query(`SELECT * FROM users`);
+
+      await mysqlCon.query(`INSERT INTO playlists (name, creator)
+          VALUES ('playlist1', ${results[0][0].id}),
+          ('playlist2', ${results[0][2].id}),
+          ('playlist3', ${results[0][2].id}),
+          ('playlist4', ${results[0][2].id}),
+          ('playlist5', ${results[0][4].id});`);
+    })
+
+    afterAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users`");
+    });
+
+    test('get sensetive data', async () => {
+
+      const Playlist = new MySequelize(mysqlCon, 'playlists')
+      const hack = await Playlist.findAll({
+        where: {
+          id: "1' UNION SELECT id, name, password FROM users -- "
+        }
+      })
+
+      console.log(hack)
+      // expect(hack.length).toBe(1)
+
+
     })
   })
 
