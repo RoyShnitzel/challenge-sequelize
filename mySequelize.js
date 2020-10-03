@@ -13,9 +13,11 @@ class MySequelize {
 
   async delete(id) {
     console.log("Delete Function Started");
-    const query = softDelete(getDate(), id)
+    const date = getDate()
+    console.log(`\"${date}\"`)
+    const query = softDelete(`\"${date}\"`, id)
     const results = await this.connection.query(query);
-    console.log(`${id} Has Been Soft Deleted`)
+    // console.log(`${id} Has Been Soft Deleted`)
     return results
   }
 
