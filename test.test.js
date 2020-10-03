@@ -1,6 +1,5 @@
 const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
-const getDate = require("./helpers/getDate");
 
 let mysqlCon;
 
@@ -13,34 +12,37 @@ describe("first test", () => {
       database: "challenge_sequelize",
       multipleStatements: true,
     });
+
   });
 
-  afterAll(async () => {
-    await connection.end()
+  afterAll(async (done) => {
+    await mysqlCon.end()
+    done()
   })
 
-  describe("Delete() and Restore() test", () => {
+  describe("Destroy() and Restore() test", () => {
     beforeEach(async () => {
       const insertUser = await mysqlCon.query(
         `INSERT INTO users (id, name, password, email) VALUES 
         (1, 'gtrodel',12345678, 'gtrodel@gmail.com'), (2, 'rshnitzer',12345678, 'rshnitzer@gmail.com'), (3, 'osimhi', 12345678, 'osimhi@gmail.com'), (4, 'gmoshko', 666666, 'gmoshko@gmail.com')`
       );
-      console.log(insertUser);
+
     });
 
     afterEach(async () => {
       await mysqlCon.query(`DELETE FROM users`);
     });
-    test("soft delete() test", async () => {
+    test("destroy() test", async () => {
       const Users = new MySequelize(mysqlCon, "users");
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
-      console.log("Result2", results[0][0].deleted_at);
+
       expect(results[0][0].deleted_at).toBe(null);
       await Users.delete({
         where: {
           id: 1
         }
       });
+
       const deletedUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
@@ -74,13 +76,14 @@ describe("first test", () => {
           id: 1
         }}
       );
+
       const deletedUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
 
       expect(deletedUser[0][0].deleted_at).not.toBe(null);
       await Users.restore();
-      console.log(`User has Been Restored`);
+
       const restoredUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
@@ -202,7 +205,7 @@ describe("first test", () => {
         ],
       });
 
-      console.log(results[0][0].id);
+
 
       expect(myResults[0].id).toBe(results[0][0].id);
       expect(myResults[0].playlists[0].creator).toBe(results[0][0].id);
@@ -371,6 +374,5 @@ describe("first test", () => {
       expect(myResults[0].name).toBe('Ron');
     })
   })
-
 
 });
