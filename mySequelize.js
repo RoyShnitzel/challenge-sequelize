@@ -7,9 +7,8 @@ class MySequelize {
     this.table = tableName;
   }
 
-
   async findAll(options) {
-    let optionsStatment = {}
+    let optionsStatment = {};
 
     if (options) {
       const conditions = Object.keys(options)
@@ -17,7 +16,6 @@ class MySequelize {
         statment[condition] = config[condition](options[condition])
         return statment
       }, {})
-
     }
 
     const results = await this.connection.query(`
@@ -31,6 +29,33 @@ class MySequelize {
     return results[0]
   }
 
+  async findOne(options){
+    let optionsStatment = {};
+
+    if (options) {
+      const conditions = Object.keys(options)
+      optionsStatment = conditions.reduce((statment, condition) => {
+        statment[condition] = config[condition](options[condition])
+        return statment
+      }, {})
+
+    }
+    
+    const results = await this.connection.query(`SELECT 
+    ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
+    FROM ${this.table}
+    ${optionsStatment.include ? optionsStatment.include : ''}
+    ${optionsStatment.where ? optionsStatment.where : ''} 
+    ${optionsStatment.order ? optionsStatment.order : ''} 
+    ${optionsStatment.limit ? optionsStatment.limit : ''}
+    LIMIT 1`)
+    return results[0]
+  }
+
+  async findByPk(id) {
+    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
+    return results[0]
+  }
 
 
   async update(newDetsils, options) {
