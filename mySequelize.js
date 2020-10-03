@@ -18,7 +18,7 @@ class MySequelize {
     console.log(`${id} Has Been Soft Deleted`)
     return results
   }
- 
+
   async restore(id) {
     console.log("Restore Function Started");
     const query = softDelete(null, id)
@@ -26,7 +26,7 @@ class MySequelize {
     console.log(`User ID: ${id} Has Been Resotred`)
     return results
   }
-}
+
 
   async findAll(options) {
     let optionsStatment = {}
@@ -84,14 +84,19 @@ class MySequelize {
 
     return newObjects
   }
-  
+
   async create(obj) {
     console.log("started create");
     let columns = [];
     let values = [];
     for (const [key, value] of Object.entries(obj)) {
       columns.push(key);
-      values.push(`\'${value}\'`);
+      if (typeof (value) === 'boolean') {
+        values.push(value)
+      } else {
+        values.push(`\'${value}\'`);
+      }
+
     }
     columns = `(${columns.toString()})`;
     values = `(${values.toString()})`;
@@ -105,7 +110,7 @@ class MySequelize {
     let columns = Object.keys(arr[0]);
     let values = arr.map((obj) => {
       let arrOfValues = Object.values(obj);
-      return `(${arrOfValues.map((value) => `\'${value}\'`).toString()})`;
+      return `(${arrOfValues.map((value) => typeof (value) === 'boolean' ? value : `\'${value}\'`).toString()})`;
     });
 
     columns = `(${columns.toString()})`;
