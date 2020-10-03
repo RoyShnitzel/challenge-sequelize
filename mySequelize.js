@@ -1,4 +1,3 @@
-const mysql = require("mysql2");
 const softDelete = require('./sqlQueries/softDelete');
 const getDate = require("./helpers/getDate");
 const config = require('./options/optins')
@@ -11,21 +10,17 @@ class MySequelize {
     this.table = tableName;
   }
 
-  async delete(id) {
-    console.log("Delete Function Started");
+  async destroy(id) {
     const date = getDate()
-    console.log(`\"${date}\"`)
     const query = softDelete(`\"${date}\"`, id)
     const results = await this.connection.query(query);
-    // console.log(`${id} Has Been Soft Deleted`)
+
     return results
   }
 
   async restore(id) {
-    console.log("Restore Function Started");
     const query = softDelete(null, id)
     const results = await this.connection.query(query);
-    console.log(`User ID: ${id} Has Been Resotred`)
     return results
   }
 
@@ -51,12 +46,10 @@ class MySequelize {
     ${optionsStatment.order ? optionsStatment.order : ''} 
     ${optionsStatment.limit ? optionsStatment.limit : ''}`)
 
-    results = results[0]
-
     if (options && options.include) {
-      return await config.include(results, options.include, this.connection)
+      return await config.include(results[0], options.include, this.connection)
     } else {
-      return results
+      return results[0]
     }
   }
 
@@ -71,6 +64,9 @@ class MySequelize {
 
     const conditions = Object.keys(options)
     const optionsStatment = conditions.reduce((statment, condition) => {
+      if (condition === 'include') {
+        return statment
+      }
       statment[condition] = config[condition](options[condition])
       return statment
     }, {})
@@ -87,7 +83,7 @@ class MySequelize {
   }
 
   async create(obj) {
-    console.log("started create");
+
     let columns = [];
     let values = [];
     for (const [key, value] of Object.entries(obj)) {
@@ -107,17 +103,13 @@ class MySequelize {
   }
 
   async bulkCreate(arr) {
-    console.log("started create");
     let columns = Object.keys(arr[0]);
     let values = arr.map((obj) => {
       let arrOfValues = Object.values(obj);
       return `(${arrOfValues.map((value) => typeof (value) === 'boolean' ? value : `\'${value}\'`).toString()})`;
     });
-
     columns = `(${columns.toString()})`;
     values = `${values.toString()}`;
-    console.log(columns);
-    console.log(values);
     const result = await this.connection.query(
       `INSERT INTO ${this.table} ${columns} VALUES ${values}`
     );
@@ -143,7 +135,6 @@ class MySequelize {
     const results = await this.connection.query(`SELECT 
     ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
     FROM ${this.table}
-    ${optionsStatment.include ? optionsStatment.include : ''}
     ${optionsStatment.where ? optionsStatment.where : ''} 
     ${optionsStatment.order ? optionsStatment.order : ''} 
     ${optionsStatment.limit ? optionsStatment.limit : ''}
@@ -154,3 +145,5 @@ class MySequelize {
 
 
 module.exports = { MySequelize };
+
+
