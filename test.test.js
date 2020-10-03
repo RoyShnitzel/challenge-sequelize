@@ -128,11 +128,13 @@ describe("first test", () => {
         include: [
           {
             table: 'playlists',
-            sourceColumn: ['users', 'id'],
+            sourceColumn: 'id',
             tableColumn: 'creator'
           }
         ]
       });
+
+      console.log(myResults)
 
       const joinResults = await mysqlCon.query(`SELECT * FROM users LEFT JOIN playlists ON users.id = playlists.creator;`)
 
@@ -193,9 +195,28 @@ describe("first test", () => {
 
     })
 
-    test('')
-  })
+    // test('WHERE and LIMIT test', async () => {
+    //   const allUsers = await mysqlCon.query(`SELECT * FROM users`)
 
+    //   expect(allUsers[0][0].name).toBe('Yoav')
+    //   expect(allUsers[0][0].email).toBe('yoav@gmail.com')
+
+    //   const User = new MySequelize(mysqlCon, 'users');
+    //   await User.update({ name: 'Yoav', email: 'yoav@gmail.com' }, {
+    //     where: {
+    //       id: allUsers[0][0].id
+    //     },
+    //     limit: 2
+    //   })
+
+    //   const user = await mysqlCon.query(`SELECT * FROM users WHERE id = ${allUsers[0][0].id}`)
+
+    //   expect(user[0][0].name).toBe('Yoav')
+    //   expect(user[0][0].email).toBe('yoav@gmail.com')
+
+
+    // })
+  })
 
 })
 

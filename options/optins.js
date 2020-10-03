@@ -2,7 +2,7 @@ const { WHERE } = require('./WHERE');
 const { ORDER } = require('./ORDER')
 const { LIMIT } = require('./LIMIT')
 const { ATTRIBUTES } = require('./ATTRIBUTES')
-const { INCLUDE } = require('./JOIN')
+const { INCLUDE } = require('./INCLUDE')
 
 
 const config = {

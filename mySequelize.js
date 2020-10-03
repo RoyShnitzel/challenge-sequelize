@@ -14,21 +14,29 @@ class MySequelize {
     if (options) {
       const conditions = Object.keys(options)
       optionsStatment = conditions.reduce((statment, condition) => {
+        if (condition === 'include') {
+          return statment
+        }
         statment[condition] = config[condition](options[condition])
         return statment
       }, {})
 
     }
 
-    const results = await this.connection.query(`
+    let results = await this.connection.query(`
     SELECT ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
     FROM ${this.table} 
-    ${optionsStatment.include ? optionsStatment.include : ''}
     ${optionsStatment.where ? optionsStatment.where : ''} 
     ${optionsStatment.order ? optionsStatment.order : ''} 
     ${optionsStatment.limit ? optionsStatment.limit : ''}`)
 
-    return results[0]
+    results = results[0]
+
+    if (options && options.include) {
+      return await config.include(results, options.include, this.connection)
+    } else {
+      return results
+    }
   }
 
 
@@ -49,12 +57,6 @@ class MySequelize {
     }, {})
 
     const SET_Statment = SET(newDetsils)
-
-    console.log(`UPDATE ${this.table} 
-    ${SET_Statment}
-    ${optionsStatment.where}
-    ${optionsStatment.order ? optionsStatment.order : ''}
-    ${optionsStatment.limit ? optionsStatment.limit : ''}`)
 
     const newObjects = await this.connection.query(`UPDATE ${this.table} 
     ${SET_Statment}
