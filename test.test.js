@@ -38,7 +38,7 @@ describe("first test", () => {
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
 
       expect(results[0][0].deleted_at).toBe(null);
-      await Users.delete({
+      await Users.destroy({
         where: {
           id: 1
         }
@@ -56,7 +56,7 @@ describe("first test", () => {
       const Users = new MySequelize(mysqlCon, "users");
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
       expect(results[0][0]).not.toBe(undefined);
-      await Users.delete({
+      await Users.destroy({
         where: {
           id: 1
         },
@@ -72,7 +72,7 @@ describe("first test", () => {
     test("restore() test", async () => {
       const Users = new MySequelize(mysqlCon, "users");
 
-      await Users.delete(
+      await Users.destroy(
         {
           where: {
             id: 1
