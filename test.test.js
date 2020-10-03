@@ -8,7 +8,7 @@ describe("first test", () => {
     mysqlCon = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "O16s12@96",
+      password: "Injector1337",
       database: "challenge_sequelize",
       multipleStatements: true,
     });
@@ -37,18 +37,46 @@ describe("first test", () => {
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
 
       expect(results[0][0].deleted_at).toBe(null);
-      await Users.destroy(1);
+      await Users.delete({
+        where: {
+          id: 1
+        }
+      });
+
       const deletedUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
 
       expect(deletedUser[0][0].deleted_at).not.toBe(null);
     });
+
+    test("hard delete() test", async () => {
+      
+      const Users = new MySequelize(mysqlCon, "users");
+      const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
+      expect(results[0][0]).not.toBe(undefined);
+      await Users.delete({
+        where: {
+          id: 1
+        },
+        force: true
+      });
+      const deletedUser = await mysqlCon.query(
+        `SELECT * FROM users WHERE id = 1`
+      );
+
+      expect(deletedUser[0][0]).toBe(undefined);
+    });
+
     test("restore() test", async () => {
       const Users = new MySequelize(mysqlCon, "users");
 
-      await Users.destroy(1);
-      await Users.destroy(2);
+      await Users.delete(
+        {where:{
+          id: 1
+        }}
+      );
+
       const deletedUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );

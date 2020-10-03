@@ -1,28 +1,41 @@
-const softDelete = require('./sqlQueries/softDelete');
+const mysql = require("mysql2");
+const softDelete = require("./sqlQueries/softDelete");
 const getDate = require("./helpers/getDate");
-const config = require('./options/optins')
-const { SET } = require('./options/SET')
-
+const config = require("./options/optins");
+const { SET } = require("./options/SET");
+const hardDelete = require("./sqlQueries/hardDelete");
 
 class MySequelize {
-  constructor(connect, tableName) {
+    constructor(connect, tableName) {
     this.connection = connect;
     this.table = tableName;
   }
+	async delete(options) {
+		if (options) {
+      let id = options.where.id
+			const conditions = Object.keys(options);
+			if (conditions.includes("force") && options["force"] === true) {
+				const query = hardDelete(id);
+				const results = await this.connection.query(query);
+				return results;
+			} else {
+				const date = getDate();
+				console.log(`\"${date}\"`);
+				const query = softDelete(`\"${date}\"`, id);
+				const results = await this.connection.query(query);
+				return results;
+			}
+		}
+	}
 
-  async destroy(id) {
-    const date = getDate()
-    const query = softDelete(`\"${date}\"`, id)
-    const results = await this.connection.query(query);
-
-    return results
-  }
-
-  async restore(id) {
-    const query = softDelete(null, id)
-    const results = await this.connection.query(query);
-    return results
-  }
+	async restore(options) {
+  
+    let id = options ? options.where.id : null
+		const query = softDelete(null, id);
+		const results = await this.connection.query(query);
+		console.log(`User ID: ${id} Has Been Resotred`);
+		return results;
+	}
 
   async findAll(options) {
     let optionsStatment = {}
@@ -142,7 +155,6 @@ class MySequelize {
     return results[0]
   }
 }
-
 
 module.exports = { MySequelize };
 
