@@ -37,7 +37,7 @@ describe("first test", () => {
 
     afterAll(async () => {
       await mysqlCon.query('TRUNCATE TABLE `playlists`')
-      await mysqlCon.query('DELETE FROM `users` WHERE id < 10000')
+      await mysqlCon.query('DELETE FROM `users`')
     })
 
     test("no conditions test", async () => {
@@ -112,7 +112,7 @@ describe("first test", () => {
 
     });
 
-    test("INCLUDE test", async () => { // need to silve overriding
+    test("INCLUDE test", async () => {
 
       const results = await mysqlCon.query(`SELECT * FROM users`)
 
@@ -134,17 +134,13 @@ describe("first test", () => {
         ]
       });
 
-      console.log(myResults)
+      console.log(results[0][0].id)
 
-      const joinResults = await mysqlCon.query(`SELECT * FROM users LEFT JOIN playlists ON users.id = playlists.creator;`)
+      expect(myResults[0].id).toBe(results[0][0].id)
+      expect(myResults[0].playlists[0].creator).toBe(results[0][0].id)
+      expect(myResults[2].playlists.length).toBe(3)
+      expect(myResults[4].playlists[0].name).toBe('playlist5')
 
-      // console.log(myResults, '1')
-
-      // console.log(joinResults[0], '2')
-
-      // expect(myResults[0].user_id).toBe(results[0][0].user_id)
-      // expect(myResults[1].email).toBe(undefined)
-      // expect(myResults.length).toBe(2)
 
     });
 

@@ -43,7 +43,11 @@ async function JOIN(base, { table, sourceColumn, tableColumn, ...options }, conn
         return baseRow;
     })
 
-    return base;
+    if (options && options.include) {
+        return await INCLUDE(base, options.include, connection)
+    } else {
+        return base
+    }
 
 }
 
