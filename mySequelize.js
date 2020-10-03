@@ -27,7 +27,6 @@ class MySequelize {
     return results
   }
 
-
   async findAll(options) {
     let optionsStatment = {}
 
@@ -120,6 +119,34 @@ class MySequelize {
     const result = await this.connection.query(
       `INSERT INTO ${this.table} ${columns} VALUES ${values}`
     );
+  }
+
+  async findByPk(id) {
+    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
+    return results[0]
+  }
+
+  async findOne(options) {
+    let optionsStatment = {};
+
+    if (options) {
+      const conditions = Object.keys(options)
+      optionsStatment = conditions.reduce((statment, condition) => {
+        statment[condition] = config[condition](options[condition])
+        return statment
+      }, {})
+
+    }
+
+    const results = await this.connection.query(`SELECT 
+    ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
+    FROM ${this.table}
+    ${optionsStatment.include ? optionsStatment.include : ''}
+    ${optionsStatment.where ? optionsStatment.where : ''} 
+    ${optionsStatment.order ? optionsStatment.order : ''} 
+    ${optionsStatment.limit ? optionsStatment.limit : ''}
+    LIMIT 1`)
+    return results[0]
   }
 }
 

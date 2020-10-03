@@ -296,4 +296,55 @@ describe("first test", () => {
     });
   });
 
+  describe("FindOne() and FindByPk()", () => {
+
+    beforeAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users` WHERE id < 10000");
+
+      await mysqlCon.query(`INSERT INTO users (name, email, password, is_admin)
+          VALUES ('Dani', 'dani@gmail.com', '123456789', false),
+          ('Yoni', 'yoni@gmail.com', '987654321', false),
+          ('Ron', 'ron@gmail.com', '192837465', false),
+          ('Dana', 'dana@gmail.com', '918273645', True),
+          ('Yuval', 'yuval@gmail.com', '65748493021', false);`);
+    });
+
+    afterAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users`");
+    });
+
+    test("findOne no condition test", async () => {
+      const User = new MySequelize(mysqlCon, "users");
+      const myResults = await User.findOne();
+
+      expect(myResults.length).toBe(1);
+      expect(myResults[0].name).toBe('Dani');
+    })
+
+    test("findOne with conditions test", async () => {
+      const User = new MySequelize(mysqlCon, "users");
+      const myResults = await User.findOne({
+        where: { name: 'dani', password: '123456789' },
+        attributes: ['name', ['email', 'user_email']],
+      });
+
+      expect(myResults.length).toBe(1);
+      expect(myResults[0].name).toBe('Dani');
+      expect(myResults[0].user_email).toBe('dani@gmail.com');
+    })
+
+    test("findByPk test", async () => {
+      const User = new MySequelize(mysqlCon, "users");
+      const results = await mysqlCon.query(`SELECT * FROM users`);
+      const myResults = await User.findByPk(results[0][2].id);
+
+      expect(myResults.length).toBe(1);
+      expect(myResults[0].id).toBe(results[0][2].id);
+      expect(myResults[0].name).toBe('Ron');
+    })
+  })
+
+
 });
