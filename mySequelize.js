@@ -1,34 +1,10 @@
-const mysql = require("mysql2");
-const softDelete = require("./sqlQueries/softDelete");
-const getDate = require("./helpers/getDate");
-const config = require("./options/optins");
+const { getDate, getConfig, getAttributes } = require("./helpers/helpers");
+const config = require("./options/options");
 const { SET } = require("./options/SET");
-const hardDelete = require("./sqlQueries/hardDelete");
 
 
-function getConfig(options) {
-  let optionsStatment = {}
 
-  if (options) {
-    const conditions = Object.keys(options)
-    optionsStatment = conditions.reduce((statment, condition) => {
-      if (condition === 'include' || condition === 'force') {
-        return statment
-      }
-      statment[condition] = config[condition](options[condition])
-      return statment
-    }, {})
 
-  }
-
-  return `${optionsStatment.where ? optionsStatment.where : ''} 
-${optionsStatment.order ? optionsStatment.order : ''} 
-${optionsStatment.limit ? optionsStatment.limit : ''}`
-}
-
-function getAttributes(attributes) {
-  return config.attributes(attributes)
-}
 
 class MySequelize {
   constructor(connect, tableName) {
