@@ -1,15 +1,16 @@
 const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
+const config = require('./config')
 
 let mysqlCon;
 
 describe("first test", () => {
   beforeAll(async () => {
     mysqlCon = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "Injector1337",
-      database: "challenge_sequelize",
+      host: config.host,
+      user: config.user,
+      password: config.password,
+      database: config.database,
       multipleStatements: true,
     });
 
@@ -37,7 +38,7 @@ describe("first test", () => {
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
 
       expect(results[0][0].deleted_at).toBe(null);
-      await Users.delete({
+      await Users.destroy({
         where: {
           id: 1
         }
@@ -51,11 +52,11 @@ describe("first test", () => {
     });
 
     test("hard delete() test", async () => {
-      
+
       const Users = new MySequelize(mysqlCon, "users");
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
       expect(results[0][0]).not.toBe(undefined);
-      await Users.delete({
+      await Users.destroy({
         where: {
           id: 1
         },
@@ -71,10 +72,12 @@ describe("first test", () => {
     test("restore() test", async () => {
       const Users = new MySequelize(mysqlCon, "users");
 
-      await Users.delete(
-        {where:{
-          id: 1
-        }}
+      await Users.destroy(
+        {
+          where: {
+            id: 1
+          }
+        }
       );
 
       const deletedUser = await mysqlCon.query(

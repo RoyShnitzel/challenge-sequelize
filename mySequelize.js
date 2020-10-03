@@ -1,63 +1,46 @@
-const mysql = require("mysql2");
-const softDelete = require("./sqlQueries/softDelete");
-const getDate = require("./helpers/getDate");
-const config = require("./options/optins");
+const { getDate, getConfig, getAttributes } = require("./helpers/helpers");
+const config = require("./options/options");
 const { SET } = require("./options/SET");
-const hardDelete = require("./sqlQueries/hardDelete");
+
+
+
+
 
 class MySequelize {
-    constructor(connect, tableName) {
+  constructor(connect, tableName) {
     this.connection = connect;
     this.table = tableName;
   }
-	async delete(options) {
-		if (options) {
-      let id = options.where.id
-			const conditions = Object.keys(options);
-			if (conditions.includes("force") && options["force"] === true) {
-				const query = hardDelete(id);
-				const results = await this.connection.query(query);
-				return results;
-			} else {
-				const date = getDate();
-				console.log(`\"${date}\"`);
-				const query = softDelete(`\"${date}\"`, id);
-				const results = await this.connection.query(query);
-				return results;
-			}
-		}
-	}
-
-	async restore(options) {
-  
-    let id = options ? options.where.id : null
-		const query = softDelete(null, id);
-		const results = await this.connection.query(query);
-		console.log(`User ID: ${id} Has Been Resotred`);
-		return results;
-	}
-
-  async findAll(options) {
-    let optionsStatment = {}
+  async destroy({ force, ...options }) {
 
     if (options) {
-      const conditions = Object.keys(options)
-      optionsStatment = conditions.reduce((statment, condition) => {
-        if (condition === 'include') {
-          return statment
-        }
-        statment[condition] = config[condition](options[condition])
-        return statment
-      }, {})
 
+      if (force) {
+        const query = `DELETE FROM ${this.table} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
+      } else {
+        const date = getDate()
+        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
+      }
     }
+  }
+
+  async restore(options) {
+
+    const query = `UPDATE ${this.table} SET deleted_at= null ${getConfig(options)}`;
+    const results = await this.connection.query(query);
+    return results;
+  }
+
+  async findAll(options) {
 
     let results = await this.connection.query(`
-    SELECT ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
+    SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
     FROM ${this.table} 
-    ${optionsStatment.where ? optionsStatment.where : ''} 
-    ${optionsStatment.order ? optionsStatment.order : ''} 
-    ${optionsStatment.limit ? optionsStatment.limit : ''}`)
+    ${getConfig(options)}`)
 
     if (options && options.include) {
       return await config.include(results[0], options.include, this.connection)
@@ -75,22 +58,11 @@ class MySequelize {
       throw `Must sumbit at list one 'where' conditon in the options object`
     }
 
-    const conditions = Object.keys(options)
-    const optionsStatment = conditions.reduce((statment, condition) => {
-      if (condition === 'include') {
-        return statment
-      }
-      statment[condition] = config[condition](options[condition])
-      return statment
-    }, {})
-
     const SET_Statment = SET(newDetsils)
 
     const newObjects = await this.connection.query(`UPDATE ${this.table} 
     ${SET_Statment}
-    ${optionsStatment.where}
-    ${optionsStatment.order ? optionsStatment.order : ''}
-    ${optionsStatment.limit ? optionsStatment.limit : ''}`)
+    ${getConfig(options)}`)
 
     return newObjects
   }
@@ -134,23 +106,11 @@ class MySequelize {
   }
 
   async findOne(options) {
-    let optionsStatment = {};
-
-    if (options) {
-      const conditions = Object.keys(options)
-      optionsStatment = conditions.reduce((statment, condition) => {
-        statment[condition] = config[condition](options[condition])
-        return statment
-      }, {})
-
-    }
 
     const results = await this.connection.query(`SELECT 
-    ${optionsStatment.attributes ? optionsStatment.attributes : '*'} 
+    ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
     FROM ${this.table}
-    ${optionsStatment.where ? optionsStatment.where : ''} 
-    ${optionsStatment.order ? optionsStatment.order : ''} 
-    ${optionsStatment.limit ? optionsStatment.limit : ''}
+    ${getConfig(options)}
     LIMIT 1`)
     return results[0]
   }
