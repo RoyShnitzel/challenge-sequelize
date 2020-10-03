@@ -1,11 +1,32 @@
+const mysql = require("mysql2");
+const softDelete = require('./sqlQueries/softDelete');
+const getDate = require("./helpers/getDate");
 const config = require('./options/optins')
 const { SET } = require('./options/SET')
+
 
 class MySequelize {
   constructor(connect, tableName) {
     this.connection = connect;
     this.table = tableName;
   }
+
+  async delete(id) {
+    console.log("Delete Function Started");
+    const query = softDelete(getDate(), id)
+    const results = await this.connection.query(query);
+    console.log(`${id} Has Been Soft Deleted`)
+    return results
+  }
+ 
+  async restore(id) {
+    console.log("Restore Function Started");
+    const query = softDelete(null, id)
+    const results = await this.connection.query(query);
+    console.log(`User ID: ${id} Has Been Resotred`)
+    return results
+  }
+}
 
   async findAll(options) {
     let optionsStatment = {}
@@ -37,8 +58,6 @@ class MySequelize {
       return results
     }
   }
-
-
 
   async update(newDetsils, options) {
 
