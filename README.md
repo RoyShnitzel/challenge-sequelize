@@ -42,6 +42,22 @@ Implementing the next functions:
 
 ## Starting The Challenge
 
+
+### If you are not famillier with SQL syntax:
+
+#### SQL Queries
+* [SQL Syntax Tutorial] (https://www.sqltutorial.org/)
+* [SQL SELECT Statement] (https://www.sqltutorial.org/sql-select/)
+* [SQL WHERE] (https://www.sqltutorial.org/sql-where/)
+* [SQL ORDER BY] (https://www.sqltutorial.org/sql-order-by/)
+* [SQL LIMIT] (https://www.sqltutorial.org/sql-limit/)
+* [SQL INSERT] (https://www.sqltutorial.org/sql-insert/)
+* [SQL UPDATE] (https://www.sqltutorial.org/sql-update/)
+* [SQL DELETE] (https://www.sqltutorial.org/sql-delete/)
+
+
+
+
 ### If you are not famillier with Sequelize syntax:
 
 * ``` Model.Insert({... the object containing the value you want to insert}) ```
@@ -62,12 +78,14 @@ Implementing the next functions:
 * Restore ()
 ---
 
+
 ## Submiting The Challenge
 
 ---
 
 ## Usefull Links
 
+## Usefull Links
 
 
 

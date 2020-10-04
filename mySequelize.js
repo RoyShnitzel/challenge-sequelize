@@ -3,6 +3,10 @@ const config = require("./options/options");
 const { SET } = require("./options/SET");
 
 
+// GAl To Delete
+// const colorHelpers = require('./helpers/colorHelpers')
+// const {stage, success, links, impText} = colorHelpers
+// console.log(stage('stage'), success('success', links('links'), impText('impText')))
 
 
 

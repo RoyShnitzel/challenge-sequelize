@@ -3,9 +3,13 @@ const mysql = require("mysql2/promise");
 const config = require('./config')
 const { Op } = require('./Op/OpsSymbols')
 
-const colorHelpers = require('./helpers/colorHelpers')
-const {stage, success, links, impText} = colorHelpers
-console.log(stage('aaaa'))
+// GAl To Delete
+// const colorHelpers = require('./helpers/colorHelpers')
+// const {stage, success, links, impText} = colorHelpers
+// console.log(stage('stage'), success('success', links('links'), impText('impText')))
+
+
+
 // const MySequelize = require('../_cloned-app')
 
 
