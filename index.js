@@ -1,148 +1,129 @@
+const { getDate, getConfig, getAttributes } = require("./helpers/helpers");
+const config = require("./options/options");
+const { SET } = require("./options/SET");
+
+
+
+
+
 class MySequelize {
-    constructor(connect, tableName) {
-        this.connection = connect;
-        this.table = tableName;
-    }
+  constructor(connect, tableName) {
+    this.connection = connect;
+    this.table = tableName;
+  }
 
-    async create(obj) {
+  async create(obj) {
 
-        /*
-           Model.create({
-               name: 'test',
-               email: 'test@gmail.com',
-               password: '123456789',
-               is_admin: false
-           })
-        */
-    }
-
-    async bulkCreate(arr) {
-
-        /*
-           Model.bulkCreate([
-               {
-               name: 'test',
-               email: 'test@gmail.com',
-               password: '123456789',
-               is_admin: false
-           },
-           {
-               name: 'test1',
-               email: 'test1@gmail.com',
-               password: '123456789',
-               is_admin: false
-           },
-           {
-               name: 'test2',
-               email: 'test2@gmail.com',
-               password: '123456789',
-               is_admin: true
-           },
-        ])
-        */
-    }
-
-    async findAll(options) {
-
-        /*
-        Model.findAll({
-            where: {
-                is_admin: false
-            },
-            order: ['id', 'DESC'],
-            limit 2
-        })
-        */
-
-        /*
-        Model.findAll({
-            include:[
-                {
-                    table: playlists,             // table yo want to join
-                    tableForeignKey: "creator",   // column reference in the table yo want to join
-                    sourceForeignKey: "id",       // base table column reference
-                }
-            ] 
-        })
-        */
-
-        /*
-        Model.findAll({
-            where: {
-                [Op.gt]: {
-                    id: 10
-                },                // both [Op.gt] and [Op.lt] need to work so you can pass the tests
-                [Op.lt]: {        
-                    id: 20
-                }
-        })
-        */
-    }
-
-    async findByPk(id) {
-        /*
-            Model.findByPk(id)
-        */
-    }
-
-    async findOne(options) {
-        /*
-            Model.findOne({
-                where: {
-                    is_admin: true
-                }
-            })
-        */
-    }
-
-    async update(newDetsils, options) {
-        /*
-            Model.update( { name: 'test6', email: 'test6@gmail.com' } , {
-                where: {                                                      // first object containing details to update
-                    is_admin: true                                            // second object containing condotion for the query
-                }
-            })
-        */
-    }
-
-    async destroy({ force, ...options }) {
-        /*
-            Model.destroy({
-                where: {                                                      
-                    is_admin: true                                            
-                },
-                force: true      // will cause hard delete
-            })
-        */
-
-        /*
-           Model.destroy({
-               where: {                                                      
-                   id: 10                                           
-               },
-               force: false      // will cause soft delete
-           })
-       */
-        /*
-           Model.destroy({
-               where: {                                                      
-                   id: 10                                           
-               },  // will cause soft delete
-           })
-       */
+    let columns = [];
+    let values = [];
+    for (const [key, value] of Object.entries(obj)) {
+      columns.push(key);
+      if (typeof (value) === 'boolean') {
+        values.push(value)
+      } else {
+        values.push(`\'${value}\'`);
+      }
 
     }
+    columns = `(${columns.toString()})`;
+    values = `(${values.toString()})`;
+    const result = await this.connection.query(
+      `INSERT INTO ${this.table} ${columns} VALUES ${values}`
+    );
 
-    async restore(options) {
-        /*
-           Model.restore({
-               where: {                                                      
-                   id: 12                                          
-               }
-           })
-       */
+    return result[0]
+  }
+
+  async bulkCreate(arr) {
+    let columns = Object.keys(arr[0]);
+    let values = arr.map((obj) => {
+      let arrOfValues = Object.values(obj);
+      return `(${arrOfValues.map((value) => typeof (value) === 'boolean' ? value : `\'${value}\'`).toString()})`;
+    });
+    columns = `(${columns.toString()})`;
+    values = `${values.toString()}`;
+    console.log(values)
+    const result = await this.connection.query(
+      `INSERT INTO ${this.table} ${columns} VALUES ${values}`
+    );
+  }
+
+  async findAll(options) {
+
+
+    let query = `SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
+    FROM ${this.table} 
+    ${getConfig(options)}`;
+
+    query = query.toString()
+
+    let results = await this.connection.query(query)
+
+    if (options && options.include) {
+      return await config.include(results[0], options.include, this.connection)
+    } else {
+      return results[0]
+    }
+  }
+
+  async findByPk(id) {
+    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
+    return results[0]
+  }
+
+  async findOne(options) {
+
+    const results = await this.connection.query(`SELECT 
+    ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
+    FROM ${this.table}
+    ${getConfig(options)}
+    LIMIT 1`)
+    return results[0]
+  }
+
+  async update(newDetsils, options) {
+
+    if (!newDetsils) {
+      throw 'Must sumbit colums and values to update'
+    }
+    if (!options.where) {
+      throw `Must sumbit at list one 'where' conditon in the options object`
     }
 
+    const SET_Statment = SET(newDetsils)
 
+    const newObjects = await this.connection.query(`UPDATE ${this.table} 
+    ${SET_Statment}
+    ${getConfig(options)}`)
 
+    return newObjects
+  }
+
+  async destroy({ force, ...options }) {
+
+    if (options) {
+
+      if (force) {
+        const query = `DELETE FROM ${this.table} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
+      } else {
+        const date = getDate()
+        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
+      }
+    }
+  }
+
+  async restore(options) {
+
+    const query = `UPDATE ${this.table} SET deleted_at= null ${getConfig(options)}`;
+    const results = await this.connection.query(query);
+    return results;
+  }
 }
+
+module.exports = { MySequelize };
+
+
