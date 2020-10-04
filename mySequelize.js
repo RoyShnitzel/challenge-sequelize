@@ -17,6 +17,7 @@ class MySequelize {
     let columns = [];
     let values = [];
     for (const [key, value] of Object.entries(obj)) {
+      columns.push(key);
       if (typeof (value) === 'boolean') {
         values.push(value)
       } else {
