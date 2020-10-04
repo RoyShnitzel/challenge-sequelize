@@ -37,10 +37,15 @@ class MySequelize {
 
   async findAll(options) {
 
-    let results = await this.connection.query(`
+
+    let query = `
     SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
     FROM ${this.table} 
-    ${getConfig(options)}`)
+    ${getConfig(options)}`;
+
+    query = query.toString()
+
+    let results = await this.connection.query(query)
 
     if (options && options.include) {
       return await config.include(results[0], options.include, this.connection)
