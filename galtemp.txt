@@ -1,6 +1,0 @@
-#Delete
-https://sequelize.org/master/manual/paranoid.html#deleting
-Add Hard Delete Which is Hard Deleting (When the User insert Force:True)
-
-#Restore
-https://sequelize.org/master/manual/paranoid.html#restoring
