@@ -45,8 +45,6 @@ describe("MySequelize Challenge", () => {
     return result
   });
 
-
-
   afterAll(async (done) => {
     await mysqlCon.query("DROP TABLE `playlists`");
     await mysqlCon.query("DROP TABLE `users`");
