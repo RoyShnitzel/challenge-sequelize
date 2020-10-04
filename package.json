@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/RoyShnitzel/challenge-sequelize#readme",
   "dependencies": {
-    "chalk": "^4.1.0",
     "mysql2": "^2.2.5"
   },
   "devDependencies": {

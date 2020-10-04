@@ -2,10 +2,6 @@ const { getDate, getConfig, getAttributes } = require("./helpers/helpers");
 const config = require("./options/options");
 const { SET } = require("./options/SET");
 
-
-
-
-
 class MySequelize {
   constructor(connect, tableName) {
     this.connection = connect;
@@ -66,8 +62,12 @@ class MySequelize {
     }
   }
 
+  // async findByPk(id) {
+  //   const results = await this.connection.query("SELECT * FROM " + this.table + " WHERE id = '" + id + "'")
+    
   async findByPk(id) {
-    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
+    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`)
+    
     return results[0]
   }
 
