@@ -1,4 +1,4 @@
-const { MySequelize } = require("./mySequelize");
+const { MySequelize } = require(".");
 const mysql = require("mysql2/promise");
 const config = require('./config')
 const { Op } = require('./Op/OpsSymbols')
@@ -44,8 +44,6 @@ describe("MySequelize Challenge", () => {
     )
     return result
   });
-
-
 
   afterAll(async (done) => {
     await mysqlCon.query("DROP TABLE `playlists`");
