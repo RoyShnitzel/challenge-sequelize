@@ -3,6 +3,9 @@ const config = require("./options/options");
 const { SET } = require("./options/SET");
 
 
+const colorHelpers = require('./helpers/colorHelpers')
+const {stage, subject, success, links, impText} = colorHelpers
+// console.log(stage('stage'), success('success', links('links'), impText('impText')))
 
 
 
@@ -67,7 +70,12 @@ class MySequelize {
   }
 
   async findByPk(id) {
-    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
+    const results = await this.connection.query("SELECT * FROM " + this.table + " WHERE id = '" + id + "'")
+    
+  // async findByPk(id) {
+  //   const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`)
+    
+    console.log(subject("Find By PK Results "), stage(JSON.stringify(results[0])))
     return results[0]
   }
 
