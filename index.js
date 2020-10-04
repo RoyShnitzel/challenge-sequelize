@@ -135,6 +135,6 @@ class MySequelize {
        */
     }
 
-
-
 }
+
+module.exports = { MySequelize };
