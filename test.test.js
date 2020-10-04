@@ -3,10 +3,10 @@ const mysql = require("mysql2/promise");
 const config = require('./config')
 const { Op } = require('./Op/OpsSymbols')
 
-// GAl To Delete
-const colorHelpers = require('./helpers/colorHelpers')
-const {stage, subject, success, links, impText} = colorHelpers
-// console.log(stage('stage'), success('success', links('links'), impText('impText')))
+// // GAl To Delete
+// const colorHelpers = require('./helpers/colorHelpers')
+// const {stage, subject, success, links, impText} = colorHelpers
+// // console.log(stage('stage'), success('success', links('links'), impText('impText')))
 
 
 
@@ -457,22 +457,18 @@ describe("MySequelize Challenge", () => {
     test('get sensetive data', async () => {
 
       const Playlist = new MySequelize(mysqlCon, 'playlists')
-      let playlist = [{"id":1,"name":"playlist1","creator":39}]
 
       let answer
       try {
         const hack = await Playlist.findByPk("1' UNION SELECT id, name, password FROM users -- -")
         answer = hack
-        console.log(subject("SQLI Hacked Data: "),success(JSON.stringify(hack)))
       }
       catch (err) {
         answer = err
-        console.log(subject("SQLI ERROR"), success(JSON.stringify(answer)))
       } 
       expect(() => {throw answer}).toThrowError()
       expect(answer.errno).toBe(1064)
 
-      console.log(subject("Answer"), impText(answer))
 
 
     })
