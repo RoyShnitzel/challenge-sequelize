@@ -16,10 +16,10 @@ class MySequelize {
         */
     }
 
-    async BulkCreate(arr) {
+    async bulkCreate(arr) {
 
         /*
-           Model.create([
+           Model.bulkCreate([
                {
                name: 'test',
                email: 'test@gmail.com',
@@ -123,6 +123,14 @@ class MySequelize {
                force: false      // will cause soft delete
            })
        */
+        /*
+           Model.destroy({
+               where: {                                                      
+                   id: 10                                           
+               },  // will cause soft delete
+           })
+       */
+
     }
 
     async restore(options) {
