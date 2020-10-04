@@ -1,12 +1,11 @@
-
-function gt(object) {
+function lt(object) {
 
     const GTstatment = Object.keys(object).reduce((statment, key, index) => {
 
         if (index === Object.keys(object).length - 1) {
-            return statment += `${key} > ${object[key]}`
+            return statment += `${key} < ${object[key]}`
         } else {
-            return statment += `${key} > ${object[key]} AND `
+            return statment += `${key} < ${object[key]} AND `
         }
     }, '')
 
@@ -14,4 +13,4 @@ function gt(object) {
     return GTstatment
 }
 
-module.exports = gt
+module.exports = lt

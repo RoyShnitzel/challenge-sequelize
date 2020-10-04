@@ -1,6 +1,8 @@
 const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
 const config = require('./config')
+const { Op } = require('./Op/OpsSymbols')
+
 
 let mysqlCon;
 
@@ -259,26 +261,38 @@ describe("first test", () => {
       expect(user[0][0].email).toBe("yoav@gmail.com");
     });
 
-    // test('WHERE and LIMIT test', async () => {
-    //   const allUsers = await mysqlCon.query(`SELECT * FROM users`)
+    test('WHERE and LIMIT test', async () => {
+      const allUsers = await mysqlCon.query(`SELECT * FROM users`)
 
-    //   expect(allUsers[0][0].name).toBe('Yoav')
-    //   expect(allUsers[0][0].email).toBe('yoav@gmail.com')
+      expect(allUsers[0][0].name).toBe('Yoav')
+      expect(allUsers[0][0].email).toBe('yoav@gmail.com')
 
-    //   const User = new MySequelize(mysqlCon, 'users');
-    //   await User.update({ name: 'Yoav', email: 'yoav@gmail.com' }, {
-    //     where: {
-    //       id: allUsers[0][0].id
-    //     },
-    //     limit: 2
-    //   })
+      const User = new MySequelize(mysqlCon, 'users');
+      await User.update({ name: 'test', email: 'test@gmail.com' }, {
+        where: {
+          [Op.gt]: {
+            id: allUsers[0][1].id
+          }
+        },
+        limit: 2
+      })
 
-    //   const user = await mysqlCon.query(`SELECT * FROM users WHERE id = ${allUsers[0][0].id}`)
+      console.log()
 
-    //   expect(user[0][0].name).toBe('Yoav')
-    //   expect(user[0][0].email).toBe('yoav@gmail.com')
+      const users = await mysqlCon.query(`SELECT * FROM users `)
 
-    // })
+      console.log(users[0])
+
+      expect(users[0][0].name).toBe('Yoav')
+
+      expect(users[0][2].name).toBe('test')
+
+      expect(users[0][3].email).toBe('test@gmail.com')
+
+      expect(users[0][4].name).toBe('Yuval')
+
+
+    })
   });
 
   describe("Insert() test", () => {
@@ -375,6 +389,50 @@ describe("first test", () => {
       expect(myResults.length).toBe(1);
       expect(myResults[0].id).toBe(results[0][2].id);
       expect(myResults[0].name).toBe('Ron');
+    })
+  })
+
+  describe('SQL Injection test', () => {
+
+    beforeAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users` WHERE id < 10000");
+
+      await mysqlCon.query(`INSERT INTO users (name, email, password, is_admin)
+          VALUES ('Dani', 'dani@gmail.com', '123456789', false),
+          ('Yoni', 'yoni@gmail.com', '987654321', false),
+          ('Ron', 'ron@gmail.com', '192837465', false),
+          ('Dana', 'dana@gmail.com', '918273645', True),
+          ('Yuval', 'yuval@gmail.com', '65748493021', false);`);
+
+      const results = await mysqlCon.query(`SELECT * FROM users`);
+
+      await mysqlCon.query(`INSERT INTO playlists (name, creator)
+          VALUES ('playlist1', ${results[0][0].id}),
+          ('playlist2', ${results[0][2].id}),
+          ('playlist3', ${results[0][2].id}),
+          ('playlist4', ${results[0][2].id}),
+          ('playlist5', ${results[0][4].id});`);
+    })
+
+    afterAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users`");
+    });
+
+    test('get sensetive data', async () => {
+
+      const Playlist = new MySequelize(mysqlCon, 'playlists')
+      const hack = await Playlist.findAll({
+        where: {
+          id: "1' UNION SELECT id, name, password FROM users -- "
+        }
+      })
+
+      // console.log(hack)
+      // expect(hack.length).toBe(1)
+
+
     })
   })
 
