@@ -4,12 +4,14 @@ const config = require('./config')
 const { Op } = require('./Op/OpsSymbols')
 
 
-const MySequelize = require('../_cloned-app')
+
+// const MySequelize = require('../_cloned-app')
 
 let mysqlCon;
 
 describe("MySequelize Challenge", () => {
   beforeAll(async () => {
+
     mysqlCon = await mysql.createConnection({
       host: config.host,
       user: config.user,
@@ -18,9 +20,36 @@ describe("MySequelize Challenge", () => {
       multipleStatements: true,
     });
 
+    const result = await mysqlCon.query(
+      `CREATE TABLE users (
+        id int NOT NULL AUTO_INCREMENT,
+        name varchar(255) NOT NULL,
+        email varchar(255) NOT NULL,
+        password varchar(255) NOT NULL,
+        is_admin tinyint NOT NULL DEFAULT '0',
+        deleted_at timestamp NULL DEFAULT NULL,
+        created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+      );
+      
+      CREATE TABLE playlists (
+        id int NOT NULL AUTO_INCREMENT,
+        name varchar(45) NOT NULL,
+        creator int NOT NULL,
+        PRIMARY KEY (id),
+        KEY creator_pk_idx (creator),
+        CONSTRAINT creator_pk FOREIGN KEY (creator) REFERENCES users (id)
+      );
+      `
+    )
+    return result
   });
 
+
+
   afterAll(async (done) => {
+    await mysqlCon.query("DROP TABLE `playlists`");
+    await mysqlCon.query("DROP TABLE `users`");
     await mysqlCon.end()
     done()
   })
@@ -428,7 +457,7 @@ describe("MySequelize Challenge", () => {
         }
       })
 
-      // console.log(hack)
+      console.log(hack)
       // expect(hack.length).toBe(1)
 
 
