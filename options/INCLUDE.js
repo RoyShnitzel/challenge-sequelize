@@ -8,7 +8,7 @@ async function INCLUDE(base, models, connection) {
     return newResults
 }
 
-async function JOIN(base, { table, sourceColumn, tableColumn, ...options }, connection) {
+async function JOIN(base, { table, sourceForeignKey, tableForeignKey, ...options }, connection) {
 
     let optionsStatment = {}
 
@@ -32,7 +32,7 @@ async function JOIN(base, { table, sourceColumn, tableColumn, ...options }, conn
 
     base = base.map(baseRow => {
         results.forEach(joinRow => {
-            if (baseRow[sourceColumn] === joinRow[tableColumn]) {
+            if (baseRow[sourceForeignKey] === joinRow[tableForeignKey]) {
                 if (!baseRow[table]) {
                     baseRow[table] = []
                 }
