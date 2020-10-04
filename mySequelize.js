@@ -24,26 +24,6 @@ class MySequelize {
       }
 
     }
-<<<<<<< HEAD
-  }
-  async inject({ force, ...options }) {
-
-    if (options) {
-
-      if (force) {
-        const query = 'SELECT * FROM ' + this.table + getConfig(options)
-        const results = await this.connection.query(query);
-        return results;
-      } else {
-        const date = getDate()
-        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
-        const results = await this.connection.query(query);
-        return results;
-      }
-    }
-  }
-  async restore(options) {
-=======
     columns = `(${columns.toString()})`;
     values = `(${values.toString()})`;
     const result = await this.connection.query(
@@ -52,7 +32,6 @@ class MySequelize {
 
     return result[0]
   }
->>>>>>> 35c16b6cc19a2f232aeac202bd6693dac9633fea
 
   async bulkCreate(arr) {
     let columns = Object.keys(arr[0]);
