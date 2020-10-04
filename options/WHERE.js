@@ -1,8 +1,6 @@
 const { Operations } = require('../Op/index');
-const Op = require('../Op/OpsSymbols')
 
 function WHERE(conditions) {
-
 
     const conditiosKeys = Object.keys(conditions);
     let WhereStatment = conditiosKeys.reduce((statment, key, index) => {
@@ -19,11 +17,10 @@ function WHERE(conditions) {
 
         const symbolsKeys = Object.getOwnPropertySymbols(conditions)
         WhereStatment = symbolsKeys.reduce((statment, key, index) => {
-
             if (index === Object.getOwnPropertySymbols(conditions).length - 1) {
                 return statment += `${Operations[key.description](conditions[key])}`
             } else {
-                return `${Operations[key.description](conditions[key])} AND`
+                return statment += `${Operations[key.description](conditions[key])} AND `
             }
 
         }, WhereStatment)

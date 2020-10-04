@@ -11,21 +11,20 @@ class MySequelize {
     this.connection = connect;
     this.table = tableName;
   }
-  async destroy({ force, ...options }) {
 
-    if (options) {
+  async create(obj) {
 
-      if (force) {
-        const query = `DELETE FROM ${this.table} ${getConfig(options)}`
-        const results = await this.connection.query(query);
-        return results;
+    let columns = [];
+    let values = [];
+    for (const [key, value] of Object.entries(obj)) {
+      if (typeof (value) === 'boolean') {
+        values.push(value)
       } else {
-        const date = getDate()
-        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
-        const results = await this.connection.query(query);
-        return results;
+        values.push(`\'${value}\'`);
       }
+
     }
+<<<<<<< HEAD
   }
   async inject({ force, ...options }) {
 
@@ -44,17 +43,35 @@ class MySequelize {
     }
   }
   async restore(options) {
+=======
+    columns = `(${columns.toString()})`;
+    values = `(${values.toString()})`;
+    const result = await this.connection.query(
+      `INSERT INTO ${this.table} ${columns} VALUES ${values}`
+    );
 
-    const query = `UPDATE ${this.table} SET deleted_at= null ${getConfig(options)}`;
-    const results = await this.connection.query(query);
-    return results;
+    return result[0]
+  }
+>>>>>>> 35c16b6cc19a2f232aeac202bd6693dac9633fea
+
+  async bulkCreate(arr) {
+    let columns = Object.keys(arr[0]);
+    let values = arr.map((obj) => {
+      let arrOfValues = Object.values(obj);
+      return `(${arrOfValues.map((value) => typeof (value) === 'boolean' ? value : `\'${value}\'`).toString()})`;
+    });
+    columns = `(${columns.toString()})`;
+    values = `${values.toString()}`;
+    console.log(values)
+    const result = await this.connection.query(
+      `INSERT INTO ${this.table} ${columns} VALUES ${values}`
+    );
   }
 
   async findAll(options) {
 
 
-    let query = `
-    SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
+    let query = `SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
     FROM ${this.table} 
     ${getConfig(options)}`;
 
@@ -67,6 +84,21 @@ class MySequelize {
     } else {
       return results[0]
     }
+  }
+
+  async findByPk(id) {
+    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
+    return results[0]
+  }
+
+  async findOne(options) {
+
+    const results = await this.connection.query(`SELECT 
+    ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
+    FROM ${this.table}
+    ${getConfig(options)}
+    LIMIT 1`)
+    return results[0]
   }
 
   async update(newDetsils, options) {
@@ -87,52 +119,28 @@ class MySequelize {
     return newObjects
   }
 
-  async create(obj) {
+  async destroy({ force, ...options }) {
 
-    let columns = [];
-    let values = [];
-    for (const [key, value] of Object.entries(obj)) {
-      columns.push(key);
-      if (typeof (value) === 'boolean') {
-        values.push(value)
+    if (options) {
+
+      if (force) {
+        const query = `DELETE FROM ${this.table} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
       } else {
-        values.push(`\'${value}\'`);
+        const date = getDate()
+        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
       }
-
     }
-    columns = `(${columns.toString()})`;
-    values = `(${values.toString()})`;
-    const result = await this.connection.query(
-      `INSERT INTO ${this.table} ${columns} VALUES ${values}`
-    );
   }
 
-  async bulkCreate(arr) {
-    let columns = Object.keys(arr[0]);
-    let values = arr.map((obj) => {
-      let arrOfValues = Object.values(obj);
-      return `(${arrOfValues.map((value) => typeof (value) === 'boolean' ? value : `\'${value}\'`).toString()})`;
-    });
-    columns = `(${columns.toString()})`;
-    values = `${values.toString()}`;
-    const result = await this.connection.query(
-      `INSERT INTO ${this.table} ${columns} VALUES ${values}`
-    );
-  }
+  async restore(options) {
 
-  async findByPk(id) {
-    const results = await this.connection.query(`SELECT * FROM ${this.table} WHERE id = ${id}`);
-    return results[0]
-  }
-
-  async findOne(options) {
-
-    const results = await this.connection.query(`SELECT 
-    ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
-    FROM ${this.table}
-    ${getConfig(options)}
-    LIMIT 1`)
-    return results[0]
+    const query = `UPDATE ${this.table} SET deleted_at= null ${getConfig(options)}`;
+    const results = await this.connection.query(query);
+    return results;
   }
 }
 
