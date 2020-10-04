@@ -1,0 +1,26 @@
+{
+  "name": "challenge-sequelize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "challenge-example.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RoyShnitzel/challenge-sequelize.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RoyShnitzel/challenge-sequelize/issues"
+  },
+  "homepage": "https://github.com/RoyShnitzel/challenge-sequelize#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "mysql2": "^2.2.5"
+  },
+  "devDependencies": {
+    "jest": "^26.4.2"
+  }
+}
