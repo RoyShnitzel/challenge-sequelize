@@ -2,8 +2,10 @@ const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
 const config = require('./config')
 const { Op } = require('./Op/OpsSymbols')
+const chalk = require("chalk");
 
 
+console.log(chalk`{red Hello}`)
 let mysqlCon;
 
 describe("first test", () => {
@@ -429,7 +431,7 @@ describe("first test", () => {
         }
       })
 
-      // console.log(hack)
+      console.log(hack)
       // expect(hack.length).toBe(1)
 
 
