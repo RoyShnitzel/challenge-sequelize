@@ -9,6 +9,8 @@ console.log(stage('aaaa'))
 // const MySequelize = require('../_cloned-app')
 
 
+// const MySequelize = require('../_cloned-app')
+
 let mysqlCon;
 
 describe("MySequelize Challenge", () => {
