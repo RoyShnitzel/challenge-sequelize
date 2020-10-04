@@ -5,7 +5,7 @@ const and = require("./and");
 const like = require("./like");
 const includes = require("./includes");
 
-const Operations = {
+const operations = {
   ">": gt,
   "<": lt,
   or,
@@ -13,4 +13,4 @@ const Operations = {
   like,
 };
 
-module.exports = { Operations };
+module.exports = { operations };
