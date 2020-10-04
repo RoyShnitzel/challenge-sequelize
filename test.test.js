@@ -1,60 +1,94 @@
 const { MySequelize } = require("./mySequelize");
 const mysql = require("mysql2/promise");
-const getDate = require("./helpers/getDate");
+const config = require('./config')
+const { Op } = require('./Op/OpsSymbols')
+
 
 let mysqlCon;
 
 describe("first test", () => {
   beforeAll(async () => {
     mysqlCon = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "O16s12@96",
-      database: "challenge_sequelize",
+      host: config.host,
+      user: config.user,
+      password: config.password,
+      database: config.database,
       multipleStatements: true,
     });
+
   });
 
-  afterAll(async () => {
-    await connection.end()
+  afterAll(async (done) => {
+    await mysqlCon.end()
+    done()
   })
 
-  describe("Delete() and Restore() test", () => {
+  describe("Destroy() and Restore() test", () => {
     beforeEach(async () => {
       const insertUser = await mysqlCon.query(
         `INSERT INTO users (id, name, password, email) VALUES 
         (1, 'gtrodel',12345678, 'gtrodel@gmail.com'), (2, 'rshnitzer',12345678, 'rshnitzer@gmail.com'), (3, 'osimhi', 12345678, 'osimhi@gmail.com'), (4, 'gmoshko', 666666, 'gmoshko@gmail.com')`
       );
-      console.log(insertUser);
+
     });
 
     afterEach(async () => {
       await mysqlCon.query(`DELETE FROM users`);
     });
-    test("soft delete() test", async () => {
+    test("destroy() test", async () => {
       const Users = new MySequelize(mysqlCon, "users");
       const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
-      console.log("Result2", results[0][0].deleted_at);
+
       expect(results[0][0].deleted_at).toBe(null);
-      await Users.delete(1);
+      await Users.destroy({
+        where: {
+          id: 1
+        }
+      });
+
       const deletedUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
 
       expect(deletedUser[0][0].deleted_at).not.toBe(null);
     });
+
+    test("hard delete() test", async () => {
+
+      const Users = new MySequelize(mysqlCon, "users");
+      const results = await mysqlCon.query(`SELECT * FROM users WHERE id = 1`);
+      expect(results[0][0]).not.toBe(undefined);
+      await Users.destroy({
+        where: {
+          id: 1
+        },
+        force: true
+      });
+      const deletedUser = await mysqlCon.query(
+        `SELECT * FROM users WHERE id = 1`
+      );
+
+      expect(deletedUser[0][0]).toBe(undefined);
+    });
+
     test("restore() test", async () => {
       const Users = new MySequelize(mysqlCon, "users");
 
-      await Users.delete(1);
-      await Users.delete(2);
+      await Users.destroy(
+        {
+          where: {
+            id: 1
+          }
+        }
+      );
+
       const deletedUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
 
       expect(deletedUser[0][0].deleted_at).not.toBe(null);
       await Users.restore();
-      console.log(`User has Been Restored`);
+
       const restoredUser = await mysqlCon.query(
         `SELECT * FROM users WHERE id = 1`
       );
@@ -176,7 +210,7 @@ describe("first test", () => {
         ],
       });
 
-      console.log(results[0][0].id);
+
 
       expect(myResults[0].id).toBe(results[0][0].id);
       expect(myResults[0].playlists[0].creator).toBe(results[0][0].id);
@@ -227,26 +261,38 @@ describe("first test", () => {
       expect(user[0][0].email).toBe("yoav@gmail.com");
     });
 
-    // test('WHERE and LIMIT test', async () => {
-    //   const allUsers = await mysqlCon.query(`SELECT * FROM users`)
+    test('WHERE and LIMIT test', async () => {
+      const allUsers = await mysqlCon.query(`SELECT * FROM users`)
 
-    //   expect(allUsers[0][0].name).toBe('Yoav')
-    //   expect(allUsers[0][0].email).toBe('yoav@gmail.com')
+      expect(allUsers[0][0].name).toBe('Yoav')
+      expect(allUsers[0][0].email).toBe('yoav@gmail.com')
 
-    //   const User = new MySequelize(mysqlCon, 'users');
-    //   await User.update({ name: 'Yoav', email: 'yoav@gmail.com' }, {
-    //     where: {
-    //       id: allUsers[0][0].id
-    //     },
-    //     limit: 2
-    //   })
+      const User = new MySequelize(mysqlCon, 'users');
+      await User.update({ name: 'test', email: 'test@gmail.com' }, {
+        where: {
+          [Op.gt]: {
+            id: allUsers[0][1].id
+          }
+        },
+        limit: 2
+      })
 
-    //   const user = await mysqlCon.query(`SELECT * FROM users WHERE id = ${allUsers[0][0].id}`)
+      console.log()
 
-    //   expect(user[0][0].name).toBe('Yoav')
-    //   expect(user[0][0].email).toBe('yoav@gmail.com')
+      const users = await mysqlCon.query(`SELECT * FROM users `)
 
-    // })
+      console.log(users[0])
+
+      expect(users[0][0].name).toBe('Yoav')
+
+      expect(users[0][2].name).toBe('test')
+
+      expect(users[0][3].email).toBe('test@gmail.com')
+
+      expect(users[0][4].name).toBe('Yuval')
+
+
+    })
   });
 
   describe("Insert() test", () => {
@@ -346,5 +392,48 @@ describe("first test", () => {
     })
   })
 
+  describe('SQL Injection test', () => {
+
+    beforeAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users` WHERE id < 10000");
+
+      await mysqlCon.query(`INSERT INTO users (name, email, password, is_admin)
+          VALUES ('Dani', 'dani@gmail.com', '123456789', false),
+          ('Yoni', 'yoni@gmail.com', '987654321', false),
+          ('Ron', 'ron@gmail.com', '192837465', false),
+          ('Dana', 'dana@gmail.com', '918273645', True),
+          ('Yuval', 'yuval@gmail.com', '65748493021', false);`);
+
+      const results = await mysqlCon.query(`SELECT * FROM users`);
+
+      await mysqlCon.query(`INSERT INTO playlists (name, creator)
+          VALUES ('playlist1', ${results[0][0].id}),
+          ('playlist2', ${results[0][2].id}),
+          ('playlist3', ${results[0][2].id}),
+          ('playlist4', ${results[0][2].id}),
+          ('playlist5', ${results[0][4].id});`);
+    })
+
+    afterAll(async () => {
+      await mysqlCon.query("TRUNCATE TABLE `playlists`");
+      await mysqlCon.query("DELETE FROM `users`");
+    });
+
+    test('get sensetive data', async () => {
+
+      const Playlist = new MySequelize(mysqlCon, 'playlists')
+      const hack = await Playlist.findAll({
+        where: {
+          id: "1' UNION SELECT id, name, password FROM users -- "
+        }
+      })
+
+      // console.log(hack)
+      // expect(hack.length).toBe(1)
+
+
+    })
+  })
 
 });

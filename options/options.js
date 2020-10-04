@@ -5,12 +5,10 @@ const { ATTRIBUTES } = require('./ATTRIBUTES')
 const { INCLUDE } = require('./INCLUDE')
 
 
-const config = {
+module.exports = {
     where: WHERE,
     order: ORDER,
     limit: LIMIT,
     attributes: ATTRIBUTES,
     include: INCLUDE
 }
-
-module.exports = config

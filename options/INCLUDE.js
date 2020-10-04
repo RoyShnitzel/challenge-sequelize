@@ -1,4 +1,4 @@
-const config = require('./optins')
+const config = require('./options')
 
 async function INCLUDE(base, models, connection) {
     const newResults = await models.reduce(async (newBase, model) => {
