@@ -3,7 +3,9 @@ const mysql = require("mysql2/promise");
 const config = require('./config')
 const { Op } = require('./Op/OpsSymbols')
 
-
+const colorHelpers = require('./helpers/colorHelpers')
+const {stage, success, links, impText} = colorHelpers
+console.log(stage('aaaa'))
 // const MySequelize = require('../_cloned-app')
 
 
@@ -63,6 +65,7 @@ describe("MySequelize Challenge", () => {
     test("create test", async () => {
       const User = new MySequelize(mysqlCon, "users");
       await User.create({
+        id: 21,
         name: "test",
         email: 'test@gmail.com',
         password: '123456789',

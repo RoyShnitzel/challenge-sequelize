@@ -17,6 +17,7 @@ class MySequelize {
     let columns = [];
     let values = [];
     for (const [key, value] of Object.entries(obj)) {
+      columns.push(key)
       if (typeof (value) === 'boolean') {
         values.push(value)
       } else {
@@ -50,8 +51,8 @@ class MySequelize {
   async findAll(options) {
 
 
-    let query = `SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
-    FROM ${this.table} 
+    let query = `SELECT ${(options && options.attributes) ? getAttributes(options.attributes) : '*'}
+    FROM ${this.table}
     ${getConfig(options)}`;
 
     query = query.toString()
@@ -72,8 +73,8 @@ class MySequelize {
 
   async findOne(options) {
 
-    const results = await this.connection.query(`SELECT 
-    ${(options && options.attributes) ? getAttributes(options.attributes) : '*'} 
+    const results = await this.connection.query(`SELECT
+    ${(options && options.attributes) ? getAttributes(options.attributes) : '*'}
     FROM ${this.table}
     ${getConfig(options)}
     LIMIT 1`)
@@ -91,7 +92,7 @@ class MySequelize {
 
     const SET_Statment = SET(newDetsils)
 
-    const newObjects = await this.connection.query(`UPDATE ${this.table} 
+    const newObjects = await this.connection.query(`UPDATE ${this.table}
     ${SET_Statment}
     ${getConfig(options)}`)
 
