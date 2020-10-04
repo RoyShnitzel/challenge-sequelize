@@ -1,6 +1,6 @@
 module.exports = {
     host: "localhost",
     user: "root",
-    password: "O16s12@96",
+    password: "Injector1337",
     database: "challenge_sequelize",
 }

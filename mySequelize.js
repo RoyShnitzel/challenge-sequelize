@@ -27,7 +27,22 @@ class MySequelize {
       }
     }
   }
+  async inject({ force, ...options }) {
 
+    if (options) {
+
+      if (force) {
+        const query = 'SELECT * FROM ' + this.table + getConfig(options)
+        const results = await this.connection.query(query);
+        return results;
+      } else {
+        const date = getDate()
+        const query = `UPDATE users SET deleted_at=${`\"${date}\"`} ${getConfig(options)}`
+        const results = await this.connection.query(query);
+        return results;
+      }
+    }
+  }
   async restore(options) {
 
     const query = `UPDATE ${this.table} SET deleted_at= null ${getConfig(options)}`;
